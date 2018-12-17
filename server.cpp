@@ -5,8 +5,18 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
-#include "library.h"
+#include "models/group.h"
+#include "models/user.h"
+#include "libs/utils.h"
 #define PORT 9090
+
+string excuteCommand(string, char *);
+string newFile(string, string, string);
+string readFile(string, string);
+string writeFile(string, string, string);
+string changeFile(string, string, string);
+string informationFile(string, string);
+
 int main(int argc, char const *argv[])
 {
 	int server_fd, new_socket, valread;
@@ -52,14 +62,104 @@ int main(int argc, char const *argv[])
 		printf("accept");
 		exit(EXIT_FAILURE);
 	}
+
+	printf("Please Enter username:");
+	valread = recv(new_socket, buffer, sizeof(buffer), 0);
 	while (1)
 	{
-
+		string username = string(buffer);
 		//send(new_socket, hello, strlen(hello), 0);
+		printf("Please Enter username:");
 		valread = recv(new_socket, buffer, sizeof(buffer), 0);
-		printf("valread : %i\n", valread);
 		printf("buffer : %s\n", buffer);
+		string result = excuteCommand(username, buffer);
+		cout << result << endl;
 		//printf("Hello message sent\n");
 	}
 	return 0;
+}
+
+string excuteCommand(string username, char *cmd)
+{
+	vector<string> list = split(cmd, " ");
+	if (list.size() > 1)
+	{
+		if (list[0] == "new")
+		{
+			if (list.size() > 2)
+				return newFile(username, list[1], list[2]);
+			else
+				return "Command error";
+		}
+		if (list[0] == "read")
+		{
+			return readFile(username, list[1]);
+		}
+		if (list[0] == "write")
+		{
+			if (list.size() > 2)
+				return writeFile(username, list[1], list[2]);
+			else
+				return "Command error";
+		}
+		if (list[0] == "change")
+		{
+			if (list.size() > 2)
+				return changeFile(username, list[1], list[2]);
+			else
+				return "Command error";
+		}
+		if (list[0] == "information")
+		{
+			return informationFile(username, list[1]);
+		}
+		else
+		{
+			return "unkown command";
+		}
+	}
+	else
+		return "unkown command";
+}
+
+string newFile(string username, string fileName, string permission)
+{
+	if (checkPermissionFormat(permission))
+	{
+		return "Success";
+	}
+	else
+		return "Command error";
+}
+
+string readFile(string username, string fileName)
+{
+	string content = "content";
+	return content;
+}
+
+string writeFile(string username, string fileName, string permission)
+{
+	if (permission.size() == 1 && (permission[0] == 'o' || permission[0] == 'a'))
+	{
+		return "Success";
+	}
+	else
+		return "Command error";
+}
+
+string changeFile(string username, string fileName, string permission)
+{
+	if (checkPermissionFormat(permission))
+	{
+		return "Success";
+	}
+	else
+		return "Command error";
+}
+
+string informationFile(string username, string fileName)
+{
+	string information = "information";
+	return information;
 }
