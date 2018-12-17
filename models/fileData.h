@@ -13,4 +13,5 @@ class FileData
 	long updateTime;
 	long size;
 	string name;
+	bool lock = false;
 };

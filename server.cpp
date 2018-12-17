@@ -135,7 +135,7 @@ string newFile(string username, string fileName, string permission)
 		{
 			for (int i = 0; i < capabilityList.size(); i++)
 			{
-				if (i == userGroupIndex)
+				if (capabilityList[i].name == username)
 				{
 					if (permission.substr(0, 2) != "--")
 						capabilityList[i].fileRights.push_back(
@@ -174,15 +174,43 @@ string newFile(string username, string fileName, string permission)
 
 string readFile(string username, string fileName)
 {
-	string content = "content";
-	return content;
+	int userIndex = findUserIndex(capabilityList, username);
+	int fileIndex = findFileIndex(filelist, fileName);
+	for (int i = 0; i < capabilityList[userIndex].fileRights.size(); i++)
+	{
+		if (capabilityList[userIndex].fileRights[i].name == fileName)
+		{
+			if (capabilityList[userIndex].fileRights[i].right[0] == 'r')
+				return to_string(filelist[fileIndex].updateTime);
+			else
+				return "Access rejection";
+		}
+	}
+	return "Access rejection";
 }
 
 string writeFile(string username, string fileName, string permission)
 {
 	if (permission.size() == 1 && (permission[0] == 'o' || permission[0] == 'a'))
 	{
-		return "Success";
+		int userIndex = findUserIndex(capabilityList, username);
+		int fileIndex = findFileIndex(filelist, fileName);
+		for (int i = 0; i < capabilityList[userIndex].fileRights.size(); i++)
+		{
+			if (capabilityList[userIndex].fileRights[i].name == fileName)
+			{
+				if (capabilityList[userIndex].fileRights[i].right[1] == 'w')
+				{
+					if (permission[0] == 'o')
+						filelist[fileIndex].size = 1;
+					else if (permission[0] == 'a')
+						filelist[fileIndex].size++;
+					return "File size to " + to_string(filelist[fileIndex].size) + " after write";
+				}
+				else
+					return "Access rejection";
+			}
+		}
 	}
 	else
 		return "Command error";
@@ -192,7 +220,75 @@ string changeFile(string username, string fileName, string permission)
 {
 	if (checkPermissionFormat(permission))
 	{
-		return "Success";
+		int userIndex = findUserIndex(capabilityList, username);
+		int fileIndex = findFileIndex(filelist, fileName);
+		if (username == filelist[fileIndex].owner)
+		{
+
+			int userGroupIndex = findUserGroupIndex(groupList, username);
+			for (int i = 0; i < capabilityList.size(); i++)
+			{
+				int fileRightIndex = findFileRightIndex(capabilityList[i].fileRights, fileName);
+				if (capabilityList[i].name == username)
+				{
+					capabilityList[i].fileRights[fileRightIndex].right = permission.substr(0, 2);
+				}
+				else
+				{
+					int otherGroupIndex = findUserGroupIndex(groupList, capabilityList[i].name);
+					if (otherGroupIndex == userGroupIndex)
+					{
+						if (fileRightIndex == -1)
+						{
+							if (permission.substr(2, 2) != "--")
+								capabilityList[i].fileRights.push_back(
+									FileRight(
+										fileName,
+										permission.substr(2, 2)));
+						}
+						else
+						{
+							if (permission.substr(2, 2) != "--")
+								capabilityList[i].fileRights[fileRightIndex].right = permission.substr(2, 2);
+							else
+							{
+								for (int k = fileRightIndex; k < capabilityList[i].fileRights.size() - 1; k++)
+								{
+									capabilityList[i].fileRights[k] = capabilityList[i].fileRights[k + 1];
+								}
+								capabilityList[i].fileRights.pop_back();
+							}
+						}
+					}
+					else
+					{
+						if (fileRightIndex == -1)
+						{
+							if (permission.substr(4, 2) != "--")
+								capabilityList[i].fileRights.push_back(
+									FileRight(
+										fileName,
+										permission.substr(4, 2)));
+						}
+						else
+						{
+							if (permission.substr(4, 2) != "--")
+								capabilityList[i].fileRights[fileRightIndex].right = permission.substr(4, 2);
+							else
+							{
+								for (int k = fileRightIndex; k < capabilityList[i].fileRights.size() - 1; k++)
+								{
+									capabilityList[i].fileRights[k] = capabilityList[i].fileRights[k + 1];
+								}
+								capabilityList[i].fileRights.pop_back();
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+			return "Access rejection";
 	}
 	else
 		return "Command error";

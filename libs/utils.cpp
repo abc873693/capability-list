@@ -6,6 +6,7 @@
 #include <vector>
 #include <ctime>
 #include "group.h"
+#include "user.h"
 using namespace std;
 
 long int unixTimestamp()
@@ -60,6 +61,36 @@ int findUserGroupIndex(vector<Group> groupList, string username)
     for (int i = 0; i < groupList.size(); i++)
     {
         if (groupList[i].isMember(username))
+            return i;
+    }
+    return -1;
+}
+
+int findUserIndex(vector<User> capabilityList, string username)
+{
+    for (int i = 0; i < capabilityList.size(); i++)
+    {
+        if (capabilityList[i].name == username)
+            return i;
+    }
+    return -1;
+}
+
+int findFileIndex(vector<FileData> filelist, string fileName)
+{
+    for (int i = 0; i < filelist.size(); i++)
+    {
+        if (filelist[i].name == fileName)
+            return i;
+    }
+    return -1;
+}
+
+int findFileRightIndex(vector<FileRight> fileRightList, string fileName)
+{
+    for (int i = 0; i < fileRightList.size(); i++)
+    {
+        if (fileRightList[i].name == fileName)
             return i;
     }
     return -1;

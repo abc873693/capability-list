@@ -29,6 +29,6 @@ FileData::FileData(string permission,
         long int now = unixTimestamp();
         this->createTime = now;
         this->updateTime = now;
-        this->size = now / 10000;
+        this->size = 1;
         this->name = name;
 }
