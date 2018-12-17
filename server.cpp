@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include "library.h"
 #define PORT 9090
 int main(int argc, char const *argv[])
 {
