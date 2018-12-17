@@ -1,9 +1,9 @@
 using namespace std;
 class User{
 	public:
-		Book(string ,vector<FileRight> &);
+		User(string ,vector<FileRight> &);
 		string name;	
-		vector<FileRight> fileRights;
+		vector<FileRight> &fileRights;
 };
 class FileRight{
 	public:
@@ -14,5 +14,5 @@ class FileRight{
 class Group{
 	public:
 		Group(vector<string> &);
-		vector<string> users;
+		vector<string> &users;
 };
