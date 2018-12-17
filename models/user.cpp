@@ -4,8 +4,14 @@
 #include <vector>
 #include "user.h"
 using namespace std;
-User::User(string name, vector<FileData> &fileDatas)
+User::User(string name, vector<FileRight> &fileRights)
 {
         this->name = name;
-        this->fileDatas = fileDatas;
+        this->fileRights = fileRights;
+}
+FileRight::FileRight(string name,
+                     string right)
+{
+        this->name = name;
+        this->right = right;
 }

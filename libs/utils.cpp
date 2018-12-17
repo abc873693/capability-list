@@ -5,7 +5,15 @@
 #include <iomanip>
 #include <vector>
 #include <ctime>
+#include "group.h"
 using namespace std;
+
+long int unixTimestamp()
+{
+    time_t t = std::time(0);
+    long int now = static_cast<long int>(t);
+    return now;
+}
 
 vector<string> split(char *phrase, string delimiter)
 {
@@ -30,14 +38,29 @@ bool checkPermissionFormat(string permission)
         int error = 0;
         for (int i = 0; i < 6; i++)
         {
-            if (!(permission[i] == 'r' || permission[i] == 'w' || permission[i] == '-'))
-                error++;
+            if (i % 2 == 0)
+            {
+                if (!(permission[i] == 'r' || permission[i] == '-'))
+                    error++;
+            }
+            else
+            {
+                if (!(permission[i] == 'w' || permission[i] == '-'))
+                    error++;
+            }
         }
-        if (error == 0)
-            return true;
-        else
-            return false;
+        return error == 0;
     }
     else
         return false;
+}
+
+int findUserGroupIndex(vector<Group> groupList, string username)
+{
+    for (int i = 0; i < groupList.size(); i++)
+    {
+        if (groupList[i].isMember(username))
+            return i;
+    }
+    return -1;
 }

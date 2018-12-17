@@ -7,4 +7,5 @@ class Group
 public:
 	Group(vector<string> &);
 	vector<string> users;
+	bool isMember(string);
 };

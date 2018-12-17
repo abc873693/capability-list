@@ -79,6 +79,10 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
+vector<User> capabilityList;
+vector<Group> groupList;
+vector<FileData> filelist;
+
 string excuteCommand(string username, char *cmd)
 {
 	vector<string> list = split(cmd, " ");
@@ -126,7 +130,43 @@ string newFile(string username, string fileName, string permission)
 {
 	if (checkPermissionFormat(permission))
 	{
-		return "Success";
+		int userGroupIndex = findUserGroupIndex(groupList, username);
+		if (userGroupIndex != -1)
+		{
+			for (int i = 0; i < capabilityList.size(); i++)
+			{
+				if (i == userGroupIndex)
+				{
+					if (permission.substr(0, 2) != "--")
+						capabilityList[i].fileRights.push_back(
+							FileRight(
+								fileName,
+								permission.substr(0, 2)));
+				}
+				else
+				{
+					int otherGroupIndex = findUserGroupIndex(groupList, capabilityList[i].name);
+					if (otherGroupIndex == userGroupIndex)
+					{
+						if (permission.substr(2, 2) != "--")
+							capabilityList[i].fileRights.push_back(
+								FileRight(
+									fileName,
+									permission.substr(2, 2)));
+					}
+					else
+					{
+						if (permission.substr(4, 2) != "--")
+							capabilityList[i].fileRights.push_back(
+								FileRight(
+									fileName,
+									permission.substr(4, 2)));
+					}
+				}
+			}
+		}
+		else
+			return "User error";
 	}
 	else
 		return "Command error";

@@ -5,8 +5,16 @@
 using namespace std;
 class User
 {
-public:
-	User(string, vector<FileData> &);
+  public:
+	User(string, vector<FileRight> &);
 	string name;
-	vector<FileData> fileDatas;
+	vector<FileRight> fileRights;
 };
+
+class FileRight
+{
+  public:
+	FileRight(string, string);
+	string name;
+	string right;
+}
