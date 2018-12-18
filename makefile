@@ -7,7 +7,7 @@ server.out: server.o utils.o fileData.o group.o user.o
 	${CC} -o server.out server.o utils.o fileData.o group.o user.o
 server.o: server.cpp models/fileData.h models/group.h models/user.h
 	${CC} -I${INCLUDE} -c server.cpp
-utils.o: libs/utils.cpp
+utils.o: libs/utils.cpp models/fileData.h models/group.h models/user.h
 	${CC} -I${INCLUDE} -c libs/utils.cpp
 fileData.o: models/fileData.cpp
 	${CC} -I${INCLUDE} -c models/fileData.cpp

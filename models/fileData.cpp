@@ -4,7 +4,6 @@
 #include <vector>
 #include <ctime>
 #include "fileData.h"
-#include "libs/utils.h"
 using namespace std;
 FileData::FileData(string permission,
                    string owner,
@@ -26,7 +25,7 @@ FileData::FileData(string permission,
 {
         this->permission = permission;
         this->owner = owner;
-        long int now = unixTimestamp();
+        long int now = 11111;
         this->createTime = now;
         this->updateTime = now;
         this->size = 1;

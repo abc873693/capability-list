@@ -1,8 +1,14 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
-#include "fileData.h"
 using namespace std;
+class FileRight
+{
+  public:
+	FileRight(string, string);
+	string name;
+	string right;
+};
 class User
 {
   public:
@@ -10,11 +16,3 @@ class User
 	string name;
 	vector<FileRight> fileRights;
 };
-
-class FileRight
-{
-  public:
-	FileRight(string, string);
-	string name;
-	string right;
-}

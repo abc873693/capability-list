@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <iostream>
+using namespace std;
 
 int main(int argc, char *argv[])
 {
@@ -34,11 +36,13 @@ int main(int argc, char *argv[])
 	{
 		printf("Connection error");
 	}
+	else
+		printf("Connection Success\n");
 
 	//Send a message to server
-	char *message;
+	char message[1000];
 	char receiveMessage[100] = {};
-	while (scanf("%s", message))
+	while (cin.getline(message, 1000))
 	{
 		send(sockfd, message, sizeof(message), 0);
 		//recv(sockfd, receiveMessage, sizeof(receiveMessage), 0);

@@ -5,8 +5,9 @@
 #include <iomanip>
 #include <vector>
 #include <ctime>
-#include "group.h"
-#include "user.h"
+#include "../models/group.h"
+#include "../models/user.h"
+#include "../models/fileData.h"
 using namespace std;
 
 long int unixTimestamp()

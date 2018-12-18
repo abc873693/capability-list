@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include "models/fileData.h"
 #include "models/group.h"
 #include "models/user.h"
 #include "libs/utils.h"
@@ -65,13 +66,14 @@ int main(int argc, char const *argv[])
 
 	printf("Please Enter username:");
 	valread = recv(new_socket, buffer, sizeof(buffer), 0);
+	printf("Welcome %s\n", buffer);
+	string username = string(buffer);
 	while (1)
 	{
-		string username = string(buffer);
 		//send(new_socket, hello, strlen(hello), 0);
-		printf("Please Enter username:");
+		printf("Please Enter command:");
 		valread = recv(new_socket, buffer, sizeof(buffer), 0);
-		printf("buffer : %s\n", buffer);
+		printf("%s\n", buffer);
 		string result = excuteCommand(username, buffer);
 		cout << result << endl;
 		//printf("Hello message sent\n");

@@ -5,8 +5,6 @@
 #include <iomanip>
 #include <vector>
 #include <ctime>
-#include "group.h"
-#include "user.h"
 using namespace std;
 
 long int unixTimestamp();
