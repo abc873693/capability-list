@@ -61,13 +61,14 @@ void readFileData(vector<FileData> &filelist, string FILENAME)
     {
         string permission;
         string owner;
+        string group;
         long createTime;
         long updateTime;
         long size;
         string name;
         bool lock;
-        fin >> permission >> owner >> createTime >> updateTime >> size >> name >> lock;
-        FileData tmp(permission, owner, createTime, updateTime, size, name, lock);
+        fin >> permission >> owner >> group >> size >> createTime >> updateTime >> name >> lock;
+        FileData tmp(permission, owner, group, createTime, updateTime, size, name, lock);
         filelist.push_back(tmp);
     }
     fin.close();
@@ -93,6 +94,64 @@ void readCapabilityListData(vector<User> &capabilityList, string FILENAME)
         capabilityList.push_back(tmp);
     }
     fin.close();
+}
+
+void writeGroupData(vector<Group> &groupList, string FILENAME)
+{
+    ofstream fout(FILENAME);
+    for (unsigned int i = 0; i < groupList.size(); i++)
+    {
+        fout << groupList[i].name << " " << groupList[i].users.size() << " ";
+        for (int j = 0; j < groupList[i].users.size(); j++)
+        {
+            fout << groupList[i].users[j];
+            if (j < groupList[i].users.size() - 1)
+                fout << " ";
+        }
+        if (i < groupList.size() - 1)
+            fout << endl;
+    }
+    fout.close();
+}
+
+void writeFileData(vector<FileData> &filelist, string FILENAME)
+{
+    ofstream fout(FILENAME);
+    for (unsigned int i = 0; i < filelist.size(); i++)
+    {
+        FileData file = filelist[i];
+        fout << file.permission << " "
+             << file.owner << " "
+             << file.group << " "
+             << file.size << " "
+             << file.createTime << " "
+             << file.updateTime << " "
+             << file.name << " "
+             << file.lock;
+        if (i < filelist.size() - 1)
+            fout << endl;
+    }
+    fout.close();
+}
+void writeCapabilityListData(vector<User> &capabilityList, string FILENAME)
+{
+    ofstream fout(FILENAME);
+    for (unsigned int i = 0; i < capabilityList.size(); i++)
+    {
+        User user = capabilityList[i];
+        fout << user.name << " " << user.fileRights.size() << " ";
+        for (unsigned int j = 0; j < user.fileRights.size(); j++)
+        {
+            FileRight right = user.fileRights[j];
+            fout << right.name << " "
+                 << right.right;
+            if (j < user.fileRights.size() - 1)
+                fout << " ";
+        }
+        if (i < capabilityList.size() - 1)
+            fout << endl;
+    }
+    fout.close();
 }
 
 bool checkPermissionFormat(string permission)

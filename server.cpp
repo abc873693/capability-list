@@ -12,6 +12,7 @@
 #define PORT 9090
 
 void readData();
+void writeData();
 string excuteCommand(string, char *);
 string newFile(string, string, string);
 string readFile(string, string);
@@ -21,6 +22,8 @@ string informationFile(string, string);
 
 int main(int argc, char const *argv[])
 {
+	readData();
+	writeData();
 	readData();
 	int server_fd, new_socket, valread;
 	struct sockaddr_in address;
@@ -78,6 +81,7 @@ int main(int argc, char const *argv[])
 		printf("%s\n", buffer);
 		string result = excuteCommand(username, buffer);
 		cout << result << endl;
+		writeData();
 		//printf("Hello message sent\n");
 	}
 	return 0;
@@ -90,20 +94,30 @@ vector<FileData> filelist;
 void readData()
 {
 	readGroupData(groupList, "./GroupData.dat");
-	readCapabilityListData(capabilityList, "./CapabilityListData.dat");
-	readFileData(filelist, "./FileData.dat");
 	for (int i = 0; i < groupList.size(); i++)
 	{
 		cout << groupList[i].name << endl;
 	}
+	readCapabilityListData(capabilityList, "./CapabilityListData.dat");
 	for (int i = 0; i < capabilityList.size(); i++)
 	{
 		cout << capabilityList[i].name << endl;
 	}
+	readFileData(filelist, "./FileData.dat");
 	for (int i = 0; i < filelist.size(); i++)
 	{
 		cout << filelist[i].name << endl;
 	}
+}
+
+void writeData()
+{
+	writeGroupData(groupList, "./GroupData.dat");
+	cout << "GroupData" << endl;
+	writeCapabilityListData(capabilityList, "./CapabilityListData.dat");
+	cout << "CapabilityListData" << endl;
+	writeFileData(filelist, "./FileData.dat");
+	cout << "FileData" << endl;
 }
 
 string excuteCommand(string username, char *cmd)
@@ -187,6 +201,11 @@ string newFile(string username, string fileName, string permission)
 					}
 				}
 			}
+			filelist.push_back(FileData(
+				permission,
+				username,
+				groupList[userGroupIndex].name,
+				fileName));
 		}
 		else
 			return "User error";
@@ -204,7 +223,13 @@ string readFile(string username, string fileName)
 		if (capabilityList[userIndex].fileRights[i].name == fileName)
 		{
 			if (capabilityList[userIndex].fileRights[i].right[0] == 'r')
-				return to_string(filelist[fileIndex].updateTime);
+			{
+				FileData file = filelist[fileIndex];
+				string cotent = "\n" + file.name +
+								" updateTime = " + to_string(file.updateTime) +
+								" size = " + to_string(file.size);
+				return cotent;
+			}
 			else
 				return "Access rejection";
 		}
@@ -319,6 +344,20 @@ string changeFile(string username, string fileName, string permission)
 
 string informationFile(string username, string fileName)
 {
-	string information = "information";
-	return information;
+	int userIndex = findUserIndex(capabilityList, username);
+	int fileIndex = findFileIndex(filelist, fileName);
+	for (int i = 0; i < capabilityList[userIndex].fileRights.size(); i++)
+	{
+		if (capabilityList[userIndex].fileRights[i].name == fileName)
+		{
+			if (capabilityList[userIndex].fileRights[i].right[0] == 'r')
+			{
+				FileData file = filelist[fileIndex];
+				return file.info();
+			}
+			else
+				return "Access rejection";
+		}
+	}
+	return "Access rejection";
 }
