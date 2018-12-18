@@ -23,8 +23,6 @@ string informationFile(string, string);
 int main(int argc, char const *argv[])
 {
 	readData();
-	writeData();
-	readData();
 	int server_fd, new_socket, valread;
 	struct sockaddr_in address;
 	int opt = 1;
@@ -93,6 +91,9 @@ vector<FileData> filelist;
 
 void readData()
 {
+	groupList.clear();
+	capabilityList.clear();
+	filelist.clear();
 	readGroupData(groupList, "./GroupData.dat");
 	for (int i = 0; i < groupList.size(); i++)
 	{
