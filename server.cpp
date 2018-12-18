@@ -12,13 +12,14 @@
 #include "libs/utils.h"
 #define PORT 9090
 
+void send(int *, string);
 void *connectionHandler(void *);
 void readData();
 void writeData();
-string excuteCommand(string, char *);
+string excuteCommand(int *, string, char *);
 string newFile(string, string, string);
 string readFile(string, string);
-string writeFile(string, string, string);
+string writeFile(int *, string, string, string);
 string changeFile(string, string, string);
 string informationFile(string, string);
 
@@ -78,11 +79,6 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
-void send(int *new_socket, string message)
-{
-	send(*new_socket, message.c_str(), message.size(), 0);
-}
-
 vector<User> capabilityList;
 vector<Group> groupList;
 vector<FileData> filelist;
@@ -99,7 +95,7 @@ void *connectionHandler(void *socket_desc)
 	while (valread = recv(new_socket, buffer, sizeof(buffer), 0))
 	{
 		cout << buffer << endl;
-		string result = excuteCommand(username, buffer);
+		string result = excuteCommand(&new_socket, username, buffer);
 		if (result == "exit")
 			break;
 		cout << result << endl;
@@ -117,6 +113,11 @@ void *connectionHandler(void *socket_desc)
 		cout << ("recv failed");
 	}
 	return 0;
+}
+
+void send(int *new_socket, string message)
+{
+	send(*new_socket, message.c_str(), message.size(), 0);
 }
 
 void readData()
@@ -138,7 +139,7 @@ void writeData()
 	cout << "Save data." << endl;
 }
 
-string excuteCommand(string username, char *cmd)
+string excuteCommand(int *new_socket, string username, char *cmd)
 {
 	vector<string> list = split(cmd, " ");
 	if (list.size() > 1)
@@ -157,7 +158,7 @@ string excuteCommand(string username, char *cmd)
 		if (list[0] == "write")
 		{
 			if (list.size() > 2)
-				return writeFile(username, list[1], list[2]);
+				return writeFile(new_socket, username, list[1], list[2]);
 			else
 				return "Command error";
 		}
@@ -270,7 +271,7 @@ string readFile(string username, string fileName)
 	return "Access rejection";
 }
 
-string writeFile(string username, string fileName, string permission)
+string writeFile(int *new_socket, string username, string fileName, string permission)
 {
 	if (permission.size() == 1 && (permission[0] == 'o' || permission[0] == 'a'))
 	{
@@ -286,16 +287,21 @@ string writeFile(string username, string fileName, string permission)
 			{
 				if (capabilityList[userIndex].fileRights[i].right[1] == 'w')
 				{
+					char buffer[1024] = {0};
+					send(new_socket, "Please enter your append/overwire data size:");
+					recv(*new_socket, buffer, sizeof(buffer), 0);
+					int data = atoi(buffer);
 					if (permission[0] == 'o')
-						filelist[fileIndex].size = 1;
+						filelist[fileIndex].size = data;
 					else if (permission[0] == 'a')
-						filelist[fileIndex].size++;
+						filelist[fileIndex].size += data;
 					return "File size to " + to_string(filelist[fileIndex].size) + " after write";
 				}
 				else
 					return "Access rejection";
 			}
 		}
+		return "Access rejection";
 	}
 	else
 		return "Command error";
