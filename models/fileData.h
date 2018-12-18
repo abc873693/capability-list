@@ -5,7 +5,7 @@ using namespace std;
 class FileData
 {
   public:
-	FileData(string, string, long, long, long, string);
+	FileData(string, string, long, long, long, string,bool);
 	FileData(string, string, string);
 	string permission;
 	string owner;

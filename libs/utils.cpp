@@ -33,6 +33,68 @@ vector<string> split(char *phrase, string delimiter)
     return list;
 }
 
+void readGroupData(vector<Group> &groupList, string FILENAME)
+{
+    ifstream fin(FILENAME);
+    while (!fin.eof())
+    {
+        string groupName;
+        int size;
+        fin >> groupName >> size;
+        vector<string> users;
+        while (size--)
+        {
+            string userNmae;
+            fin >> userNmae;
+            users.push_back(userNmae);
+        }
+        Group tmp(groupName, users);
+        groupList.push_back(tmp);
+    }
+    fin.close();
+}
+
+void readFileData(vector<FileData> &filelist, string FILENAME)
+{
+    ifstream fin(FILENAME);
+    while (!fin.eof())
+    {
+        string permission;
+        string owner;
+        long createTime;
+        long updateTime;
+        long size;
+        string name;
+        bool lock;
+        fin >> permission >> owner >> createTime >> updateTime >> size >> name >> lock;
+        FileData tmp(permission, owner, createTime, updateTime, size, name, lock);
+        filelist.push_back(tmp);
+    }
+    fin.close();
+}
+
+void readCapabilityListData(vector<User> &capabilityList, string FILENAME)
+{
+    ifstream fin(FILENAME);
+    while (!fin.eof())
+    {
+        string name;
+        int size;
+        fin >> name >> size;
+        vector<FileRight> files;
+        while (size--)
+        {
+            string fileName;
+            string right;
+            fin >> fileName >> right;
+            files.push_back(FileRight(fileName, right));
+        }
+        User tmp(name, files);
+        capabilityList.push_back(tmp);
+    }
+    fin.close();
+}
+
 bool checkPermissionFormat(string permission)
 {
     if (permission.size() == 6)

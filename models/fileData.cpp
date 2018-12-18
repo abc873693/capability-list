@@ -10,7 +10,8 @@ FileData::FileData(string permission,
                    long createTime,
                    long updateTime,
                    long size,
-                   string name)
+                   string name,
+                   bool lock)
 {
         this->permission = permission;
         this->owner = owner;
@@ -18,6 +19,7 @@ FileData::FileData(string permission,
         this->updateTime = updateTime;
         this->size = size;
         this->name = name;
+        this->lock = lock;
 }
 FileData::FileData(string permission,
                    string owner,

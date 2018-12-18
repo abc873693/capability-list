@@ -11,6 +11,7 @@
 #include "libs/utils.h"
 #define PORT 9090
 
+void readData();
 string excuteCommand(string, char *);
 string newFile(string, string, string);
 string readFile(string, string);
@@ -20,6 +21,7 @@ string informationFile(string, string);
 
 int main(int argc, char const *argv[])
 {
+	readData();
 	int server_fd, new_socket, valread;
 	struct sockaddr_in address;
 	int opt = 1;
@@ -84,6 +86,25 @@ int main(int argc, char const *argv[])
 vector<User> capabilityList;
 vector<Group> groupList;
 vector<FileData> filelist;
+
+void readData()
+{
+	readGroupData(groupList, "./GroupData.dat");
+	readCapabilityListData(capabilityList, "./CapabilityListData.dat");
+	readFileData(filelist, "./FileData.dat");
+	for (int i = 0; i < groupList.size(); i++)
+	{
+		cout << groupList[i].name << endl;
+	}
+	for (int i = 0; i < capabilityList.size(); i++)
+	{
+		cout << capabilityList[i].name << endl;
+	}
+	for (int i = 0; i < filelist.size(); i++)
+	{
+		cout << filelist[i].name << endl;
+	}
+}
 
 string excuteCommand(string username, char *cmd)
 {

@@ -5,7 +5,8 @@ using namespace std;
 class Group
 {
 public:
-	Group(vector<string> &);
+	Group(string,vector<string> &);
+	string name;
 	vector<string> users;
 	bool isMember(string);
 };

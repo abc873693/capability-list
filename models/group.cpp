@@ -4,8 +4,9 @@
 #include <vector>
 #include "group.h"
 using namespace std;
-Group::Group(vector<string> &users)
+Group::Group(string name, vector<string> &users)
 {
+        this->name = name;
         this->users = users;
 }
 
