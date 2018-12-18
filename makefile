@@ -1,8 +1,12 @@
-all: server.out
+all: server.out client.out
 
 CC = g++
 INCLUDE = .
 
+client.out:client.o
+	${CC} -o client.out client.o
+client.o:
+	${CC} -I${INCLUDE} -c client.cpp
 server.out: server.o utils.o fileData.o group.o user.o
 	${CC} -o server.out server.o utils.o fileData.o group.o user.o -lpthread
 server.o: server.cpp models/fileData.h models/group.h models/user.h
@@ -17,4 +21,4 @@ user.o: models/user.cpp models/fileData.h
 	${CC} -I${INCLUDE} -c models/user.cpp
 
 clean:
-	rm -f server.o utils.o fileData.o group.o user.o
+	rm -f client.o server.o utils.o fileData.o group.o user.o

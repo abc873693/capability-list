@@ -78,6 +78,11 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
+void send(int *new_socket, string message)
+{
+	send(*new_socket, message.c_str(), message.size(), 0);
+}
+
 vector<User> capabilityList;
 vector<Group> groupList;
 vector<FileData> filelist;
@@ -86,62 +91,51 @@ void *connectionHandler(void *socket_desc)
 
 	int new_socket = *(int *)socket_desc, valread;
 	char buffer[1024] = {0};
-	printf("Please Enter username:");
+	send(&new_socket, "Please Enter username:");
 	valread = recv(new_socket, buffer, sizeof(buffer), 0);
-	printf("Welcome %s\n", buffer);
+	send(&new_socket, "Welcome " + string(buffer) + "\n");
 	string username = string(buffer);
-	printf("Please Enter command:");
+	send(&new_socket, "Please Enter command:");
 	while (valread = recv(new_socket, buffer, sizeof(buffer), 0))
 	{
-		//send(new_socket, hello, strlen(hello), 0);
-		printf("%s\n", buffer);
+		cout << buffer << endl;
 		string result = excuteCommand(username, buffer);
+		if (result == "exit")
+			break;
 		cout << result << endl;
 		writeData();
-		printf("Please Enter command:");
-		//printf("Hello message sent\n");
+		send(&new_socket, result + "\nPlease Enter command:");
 	}
+	cout << ("Client " + username + " disconnected") << endl;
 	if (valread == 0)
 	{
-		puts("Client disconnected");
+		cout << ("Client disconnected");
 		fflush(stdout);
 	}
 	else if (valread == -1)
 	{
-		perror("recv failed");
+		cout << ("recv failed");
 	}
 	return 0;
 }
+
 void readData()
 {
 	groupList.clear();
 	capabilityList.clear();
 	filelist.clear();
 	readGroupData(groupList, "./GroupData.dat");
-	for (int i = 0; i < groupList.size(); i++)
-	{
-		cout << groupList[i].name << endl;
-	}
 	readCapabilityListData(capabilityList, "./CapabilityListData.dat");
-	for (int i = 0; i < capabilityList.size(); i++)
-	{
-		cout << capabilityList[i].name << endl;
-	}
 	readFileData(filelist, "./FileData.dat");
-	for (int i = 0; i < filelist.size(); i++)
-	{
-		cout << filelist[i].name << endl;
-	}
+	cout << "Load Data" << endl;
 }
 
 void writeData()
 {
 	writeGroupData(groupList, "./GroupData.dat");
-	cout << "GroupData" << endl;
 	writeCapabilityListData(capabilityList, "./CapabilityListData.dat");
-	cout << "CapabilityListData" << endl;
 	writeFileData(filelist, "./FileData.dat");
-	cout << "FileData" << endl;
+	cout << "Save data." << endl;
 }
 
 string excuteCommand(string username, char *cmd)
@@ -183,6 +177,13 @@ string excuteCommand(string username, char *cmd)
 			return "unkown command";
 		}
 	}
+	else if (list.size() == 1)
+	{
+		if (list[0] == "exit")
+			return "exit";
+		else
+			return "unkown command";
+	}
 	else
 		return "unkown command";
 }
@@ -191,6 +192,9 @@ string newFile(string username, string fileName, string permission)
 {
 	if (checkPermissionFormat(permission))
 	{
+		int fileIndex = findFileIndex(filelist, fileName);
+		if (fileIndex != -1)
+			return "File is exist";
 		int userGroupIndex = findUserGroupIndex(groupList, username);
 		if (userGroupIndex != -1)
 		{
@@ -230,6 +234,7 @@ string newFile(string username, string fileName, string permission)
 				username,
 				groupList[userGroupIndex].name,
 				fileName));
+			return "Add Successful!";
 		}
 		else
 			return "User error";
@@ -242,6 +247,10 @@ string readFile(string username, string fileName)
 {
 	int userIndex = findUserIndex(capabilityList, username);
 	int fileIndex = findFileIndex(filelist, fileName);
+	if (userIndex == -1)
+		return "User not exist";
+	if (fileIndex == -1)
+		return "File not exist";
 	for (int i = 0; i < capabilityList[userIndex].fileRights.size(); i++)
 	{
 		if (capabilityList[userIndex].fileRights[i].name == fileName)
@@ -267,6 +276,10 @@ string writeFile(string username, string fileName, string permission)
 	{
 		int userIndex = findUserIndex(capabilityList, username);
 		int fileIndex = findFileIndex(filelist, fileName);
+		if (userIndex == -1)
+			return "User not exist";
+		if (fileIndex == -1)
+			return "File not exist";
 		for (int i = 0; i < capabilityList[userIndex].fileRights.size(); i++)
 		{
 			if (capabilityList[userIndex].fileRights[i].name == fileName)
@@ -294,6 +307,10 @@ string changeFile(string username, string fileName, string permission)
 	{
 		int userIndex = findUserIndex(capabilityList, username);
 		int fileIndex = findFileIndex(filelist, fileName);
+		if (userIndex == -1)
+			return "User not exist";
+		if (fileIndex == -1)
+			return "File not exist";
 		if (username == filelist[fileIndex].owner)
 		{
 
@@ -358,6 +375,8 @@ string changeFile(string username, string fileName, string permission)
 					}
 				}
 			}
+			filelist[fileIndex].permission = permission;
+			return "Change Successful!";
 		}
 		else
 			return "Access rejection";
@@ -370,6 +389,10 @@ string informationFile(string username, string fileName)
 {
 	int userIndex = findUserIndex(capabilityList, username);
 	int fileIndex = findFileIndex(filelist, fileName);
+	if (userIndex == -1)
+		return "User not exist";
+	if (fileIndex == -1)
+		return "File not exist";
 	for (int i = 0; i < capabilityList[userIndex].fileRights.size(); i++)
 	{
 		if (capabilityList[userIndex].fileRights[i].name == fileName)

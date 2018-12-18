@@ -42,10 +42,16 @@ int main(int argc, char *argv[])
 	//Send a message to server
 	char message[1000];
 	char receiveMessage[100] = {};
+	recv(sockfd, receiveMessage, sizeof(receiveMessage), 0);
+	cout << receiveMessage;
 	while (cin.getline(message, 1000))
 	{
+		*receiveMessage = {};
 		send(sockfd, message, sizeof(message), 0);
-		//recv(sockfd, receiveMessage, sizeof(receiveMessage), 0);
+		if (string(message) == "exit")
+			break;
+		recv(sockfd, receiveMessage, sizeof(receiveMessage), 0);
+		cout << receiveMessage << endl;
 	}
 	printf("close Socket\n");
 	close(sockfd);
