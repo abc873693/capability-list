@@ -5,12 +5,14 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <pthread.h>
 #include "models/fileData.h"
 #include "models/group.h"
 #include "models/user.h"
 #include "libs/utils.h"
 #define PORT 9090
 
+void *connectionHandler(void *);
 void readData();
 void writeData();
 string excuteCommand(string, char *);
@@ -60,35 +62,56 @@ int main(int argc, char const *argv[])
 		printf("listen");
 		exit(EXIT_FAILURE);
 	}
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
-							 (socklen_t *)&addrlen)) < 0)
+	pthread_t thread_id;
+	while ((new_socket = accept(server_fd, (struct sockaddr *)&address,
+								(socklen_t *)&addrlen)))
 	{
-		printf("accept");
-		exit(EXIT_FAILURE);
+		cout << "Connection accepted" << endl;
+		if (pthread_create(&thread_id, NULL, connectionHandler, (void *)&new_socket) < 0)
+		{
+			perror("could not create thread");
+			return 1;
+		}
+		cout << "Handler assigned" << endl;
 	}
-
-	printf("Please Enter username:");
-	valread = recv(new_socket, buffer, sizeof(buffer), 0);
-	printf("Welcome %s\n", buffer);
-	string username = string(buffer);
-	while (1)
-	{
-		//send(new_socket, hello, strlen(hello), 0);
-		printf("Please Enter command:");
-		valread = recv(new_socket, buffer, sizeof(buffer), 0);
-		printf("%s\n", buffer);
-		string result = excuteCommand(username, buffer);
-		cout << result << endl;
-		writeData();
-		//printf("Hello message sent\n");
-	}
+	close(server_fd);
 	return 0;
 }
 
 vector<User> capabilityList;
 vector<Group> groupList;
 vector<FileData> filelist;
+void *connectionHandler(void *socket_desc)
+{
 
+	int new_socket = *(int *)socket_desc, valread;
+	char buffer[1024] = {0};
+	printf("Please Enter username:");
+	valread = recv(new_socket, buffer, sizeof(buffer), 0);
+	printf("Welcome %s\n", buffer);
+	string username = string(buffer);
+	printf("Please Enter command:");
+	while (valread = recv(new_socket, buffer, sizeof(buffer), 0))
+	{
+		//send(new_socket, hello, strlen(hello), 0);
+		printf("%s\n", buffer);
+		string result = excuteCommand(username, buffer);
+		cout << result << endl;
+		writeData();
+		printf("Please Enter command:");
+		//printf("Hello message sent\n");
+	}
+	if (valread == 0)
+	{
+		puts("Client disconnected");
+		fflush(stdout);
+	}
+	else if (valread == -1)
+	{
+		perror("recv failed");
+	}
+	return 0;
+}
 void readData()
 {
 	groupList.clear();

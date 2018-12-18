@@ -4,9 +4,9 @@ CC = g++
 INCLUDE = .
 
 server.out: server.o utils.o fileData.o group.o user.o
-	${CC} -o server.out server.o utils.o fileData.o group.o user.o
+	${CC} -o server.out server.o utils.o fileData.o group.o user.o -lpthread
 server.o: server.cpp models/fileData.h models/group.h models/user.h
-	${CC} -I${INCLUDE} -c server.cpp
+	${CC} -I${INCLUDE} -c server.cpp -lpthread
 utils.o: libs/utils.cpp models/fileData.h models/group.h models/user.h
 	${CC} -I${INCLUDE} -c libs/utils.cpp
 fileData.o: models/fileData.cpp
