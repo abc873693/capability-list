@@ -13,7 +13,7 @@ server.o: server.cpp models/fileData.h models/group.h models/user.h
 	${CC} -I${INCLUDE} -c server.cpp -lpthread
 utils.o: libs/utils.cpp models/fileData.h models/group.h models/user.h
 	${CC} -I${INCLUDE} -c libs/utils.cpp
-fileData.o: models/fileData.cpp
+fileData.o: models/fileData.cpp libs/utils.h
 	${CC} -I${INCLUDE} -c models/fileData.cpp
 group.o: models/group.cpp
 	${CC} -I${INCLUDE} -c models/group.cpp

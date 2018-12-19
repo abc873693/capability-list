@@ -8,6 +8,7 @@
 using namespace std;
 
 long int unixTimestamp();
+string converTime(long int);
 vector<string> split(char *, string);
 void readGroupData(vector<Group> &, string);
 void readFileData(vector<FileData> &, string);

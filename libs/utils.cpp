@@ -17,6 +17,12 @@ long int unixTimestamp()
     return now;
 }
 
+string converTime(long int time)
+{
+    time_t t = time;
+    return string(ctime(&t));
+}
+
 vector<string> split(char *phrase, string delimiter)
 {
     vector<string> list;
@@ -66,9 +72,10 @@ void readFileData(vector<FileData> &filelist, string FILENAME)
         long updateTime;
         long size;
         string name;
-        bool lock;
-        fin >> permission >> owner >> group >> size >> createTime >> updateTime >> name >> lock;
-        FileData tmp(permission, owner, group, createTime, updateTime, size, name, lock);
+        bool readLock = false;
+        bool writeLock = false;
+        fin >> permission >> owner >> group >> size >> createTime >> updateTime >> name >> readLock >> writeLock;
+        FileData tmp(permission, owner, group, createTime, updateTime, size, name, readLock, writeLock);
         filelist.push_back(tmp);
     }
     fin.close();
@@ -127,7 +134,8 @@ void writeFileData(vector<FileData> &filelist, string FILENAME)
              << file.createTime << " "
              << file.updateTime << " "
              << file.name << " "
-             << file.lock;
+             << file.readLock << " "
+             << file.writeLock;
         if (i < filelist.size() - 1)
             fout << endl;
     }
@@ -139,7 +147,9 @@ void writeCapabilityListData(vector<User> &capabilityList, string FILENAME)
     for (unsigned int i = 0; i < capabilityList.size(); i++)
     {
         User user = capabilityList[i];
-        fout << user.name << " " << user.fileRights.size() << " ";
+        fout << user.name << " " << user.fileRights.size();
+        if (user.fileRights.size() != 0)
+            fout << " ";
         for (unsigned int j = 0; j < user.fileRights.size(); j++)
         {
             FileRight right = user.fileRights[j];

@@ -18,7 +18,7 @@ void readData();
 void writeData();
 string excuteCommand(int *, string, char *);
 string newFile(string, string, string);
-string readFile(string, string);
+string readFile(int *, string, string);
 string writeFile(int *, string, string, string);
 string changeFile(string, string, string);
 string informationFile(string, string);
@@ -153,7 +153,7 @@ string excuteCommand(int *new_socket, string username, char *cmd)
 		}
 		if (list[0] == "read")
 		{
-			return readFile(username, list[1]);
+			return readFile(new_socket, username, list[1]);
 		}
 		if (list[0] == "write")
 		{
@@ -244,7 +244,7 @@ string newFile(string username, string fileName, string permission)
 		return "Command error";
 }
 
-string readFile(string username, string fileName)
+string readFile(int *new_socket, string username, string fileName)
 {
 	int userIndex = findUserIndex(capabilityList, username);
 	int fileIndex = findFileIndex(filelist, fileName);
@@ -259,10 +259,17 @@ string readFile(string username, string fileName)
 			if (capabilityList[userIndex].fileRights[i].right[0] == 'r')
 			{
 				FileData file = filelist[fileIndex];
+				char buffer[1024] = {0};
+				if (filelist[fileIndex].writeLock)
+					return "Someone is writening file";
+				filelist[fileIndex].readLock++;
 				string cotent = "\n" + file.name +
 								" updateTime = " + to_string(file.updateTime) +
 								" size = " + to_string(file.size);
-				return cotent;
+				send(new_socket, cotent + "\nPlease enter any key to exit file:");
+				recv(*new_socket, buffer, sizeof(buffer), 0);
+				filelist[fileIndex].readLock--;
+				return "Exit file";
 			}
 			else
 				return "Access rejection";
@@ -288,13 +295,22 @@ string writeFile(int *new_socket, string username, string fileName, string permi
 				if (capabilityList[userIndex].fileRights[i].right[1] == 'w')
 				{
 					char buffer[1024] = {0};
+					if (filelist[fileIndex].readLock)
+						return "Someone is reading file";
+					if (filelist[fileIndex].writeLock)
+						return "Someone is writening file";
+					filelist[fileIndex].writeLock++;
 					send(new_socket, "Please enter your append/overwire data size:");
 					recv(*new_socket, buffer, sizeof(buffer), 0);
 					int data = atoi(buffer);
+					send(new_socket, "Please enter any key to save file:");
+					recv(*new_socket, buffer, sizeof(buffer), 0);
 					if (permission[0] == 'o')
 						filelist[fileIndex].size = data;
 					else if (permission[0] == 'a')
 						filelist[fileIndex].size += data;
+					filelist[fileIndex].writeLock = 0;
+					filelist[fileIndex].updateTime = unixTimestamp();
 					return "File size to " + to_string(filelist[fileIndex].size) + " after write";
 				}
 				else
